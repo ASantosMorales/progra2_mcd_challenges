@@ -2,6 +2,8 @@ import os
 import mlflow
 from evaluation import find_plots_path
 
+experiment_id_ = None
+
 def find_mlruns_path():
     current_path = os.getcwd()
     mlruns_path = os.path.join(current_path, '..', 'mlruns')
@@ -15,6 +17,15 @@ def mlflow_activation(model):
     except Exception as e:
         exp_id = mlflow.get_experiment_by_name(experiment_name).experiment_id
     print(f'Experiment {experiment_name} activated.')
+    experiment_id_ = exp_id
+    return exp_id
+
+def export_experiment_id():
+    exp_id = None
+    if experiment_id_ != None:
+        exp_id = experiment_id_
+    else:
+        print('Failure! No experiment id.')
     return exp_id
 
 def mlflow_logging(exp_id, model, metrics_, artifacts_, X_train, id_column=False, id_name:str=''):
@@ -30,7 +41,7 @@ def mlflow_logging(exp_id, model, metrics_, artifacts_, X_train, id_column=False
         for file in os.listdir(find_plots_path()):
             if '.png' in file:
                 mlflow.log_artifact(os.path.join(find_plots_path(),file))
-            print('Artifacts logged into mlflow.')
+                print(f'{file} artifact logged into mlflow.')
         # Log the model itself
         if id_column:
             X_train = X_train.drop(columns=[id_name])
