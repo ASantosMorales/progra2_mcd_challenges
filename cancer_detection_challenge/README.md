@@ -9,7 +9,7 @@ To download the project from GitHub, follow these steps:
 1. Open a terminal or command prompt.
 2. Clone the repository using the following command:
    ```
-   git clone https://github.com/ASantosMorales/progra2_mcd_challenges.git
+   git clone git@github.com:ASantosMorales/progra2_mcd_challenges.git
    ```
 3. Switch to `feature/cancer_challenge` branch.
 4. Go to cancer_detection_challenge/ folder.
