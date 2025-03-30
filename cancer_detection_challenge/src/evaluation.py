@@ -3,7 +3,25 @@ import os
 import matplotlib.pyplot as plt
 
 def roc_curve_generation(y_test, y_prob, auc_metric):
-    #y_prob = y_prob[:, 1]
+    """
+    Generates the ROC curve for a given classification model.
+
+    Parameters:
+    -----------
+    y_test : array-like
+        Ground truth binary labels (0 or 1).
+    
+    y_prob : array-like
+        Predicted probabilities for the positive class.
+    
+    auc_metric : float
+        The computed AUC value for the ROC curve.
+
+    Returns:
+    --------
+    fig : matplotlib.figure.Figure
+        The generated figure containing the ROC curve plot.
+    """
     fpr, tpr, _ = metrics.roc_curve(y_test, y_prob)
     # ROC curve plotting
     fig, ax = plt.subplots()
@@ -19,11 +37,47 @@ def roc_curve_generation(y_test, y_prob, auc_metric):
     return fig
 
 def find_plots_path():
+    """
+    Returns:
+    --------
+    str
+        The absolute path to the 'plots' directory.
+    """
     current_path = os.getcwd()
     plots_path = os.path.join(current_path, '..', 'plots')
     return os.path.abspath(plots_path)
 
 def model_predictions(model, X_test, id_column=False, id_name:str='', prob=False):
+    """
+    Generates predictions from a trained model on a given test dataset.
+
+    Parameters:
+    -----------
+    model : object
+        A trained machine learning model that supports `.predict()` and optionally `.predict_proba()`.
+    
+    X_test : pandas.DataFrame
+        The test dataset containing feature values.
+
+    id_column : bool, optional (default=False)
+        Whether to drop an identifier column before making predictions.
+
+    id_name : str, optional (default='')
+        The name of the identifier column to be dropped if `id_column` is True.
+
+    prob : bool, optional (default=False)
+        Whether to return probability predictions in addition to class predictions.
+
+    Returns:
+    --------
+    numpy.ndarray
+        Predicted class labels.
+    
+    tuple of numpy.ndarray, optional
+        If `prob=True`, returns a tuple containing:
+        - `y_pred`: Predicted class labels.
+        - `y_prob`: Predicted probabilities for the positive class.
+    """
     if id_column:
         X_test = X_test.drop(columns=[id_name])
     y_pred = model.predict(X_test)
@@ -36,6 +90,54 @@ def model_predictions(model, X_test, id_column=False, id_name:str='', prob=False
         return y_pred
     
 def model_evaluation(y_pred, y_prob, y_test, acc=True, f1=True, conf_mat=True, auc=True, roc=True):
+    """
+    Evaluates a classification model using multiple performance metrics and visualizations.
+
+    The function computes accuracy, F1-score, AUC score, and generates a confusion matrix 
+    and ROC curve based on the given predictions and ground truth labels. The computed metrics 
+    are stored in a dictionary, and generated plots are saved in the 'plots' directory.
+
+    Parameters:
+    -----------
+    y_pred : array-like
+        Predicted class labels.
+
+    y_prob : array-like
+        Predicted probabilities for the positive class.
+
+    y_test : array-like
+        Ground truth binary labels (0 or 1).
+
+    acc : bool, optional (default=True)
+        Whether to compute and display the accuracy score.
+
+    f1 : bool, optional (default=True)
+        Whether to compute and display the F1-score.
+
+    conf_mat : bool, optional (default=True)
+        Whether to compute and plot the confusion matrix.
+
+    auc : bool, optional (default=True)
+        Whether to compute and display the AUC score.
+
+    roc : bool, optional (default=True)
+        Whether to generate and save the ROC curve (requires `auc=True`).
+
+    Returns:
+    --------
+    metrics_ : dict
+        A dictionary containing the computed evaluation metrics (accuracy, F1-score, AUC score).
+
+    artifacts_ : dict
+        A dictionary containing generated visualizations:
+        - 'confusion_matrix': ConfusionMatrixDisplay object (if `conf_mat=True`).
+        - 'roc': Matplotlib figure of the ROC curve (if `roc=True`).
+
+    Notes:
+    ------
+    - Plots (confusion matrix and ROC curve) are saved in the 'plots' directory.
+    - The function relies on `find_plots_path()` for locating the directory.
+    """
     metrics_ = {}
     artifacts_ = {}
     if acc:
