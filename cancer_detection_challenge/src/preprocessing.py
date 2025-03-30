@@ -4,7 +4,10 @@ from sklearn.preprocessing import MinMaxScaler, LabelEncoder
 
 def find_dataset():
     """
-    :return: Absolute path of the first .csv, xlsx or xls file found at ../data/ 
+    Returns:
+    --------
+    str
+        The absolute path to the 'data' directory.
     """
     current_path = os.getcwd()
     data_path = os.path.join(current_path, '..', 'data')
@@ -19,7 +22,21 @@ def find_dataset():
 
 def import_dataset() -> pd.DataFrame:
     """
-    :return: Dataframe found at ../data folder.
+    Imports a dataset from a predefined location.
+
+    The function retrieves the dataset's absolute path using `find_dataset()`, reads the data 
+    into a pandas DataFrame, and returns it.
+
+    Returns:
+    --------
+    df : pandas.DataFrame
+        The imported dataset.
+
+    Notes:
+    ------
+    - The dataset location is determined by `find_dataset()`.
+    - Assumes the dataset is in CSV format.
+    - Prints a confirmation message once the dataset is successfully imported.
     """
     df_absolute_path = find_dataset()
     df = pd.read_csv(df_absolute_path)
@@ -28,10 +45,31 @@ def import_dataset() -> pd.DataFrame:
 
 def dataset_cleaning(df, empty_columns=True, nan_rows=True) -> pd.DataFrame:
     """
-    Clean the dataset by removing empty columns and rows with NaN values.
-    :param empty_columns: If True, remove columns that are completely empty.
-    :param nan_rows: If True, remove rows that have any NaN values.
-    :return: Cleaned DataFrame.
+    Cleans a dataset by removing empty columns and/or rows containing NaN values.
+
+    The function removes columns that are entirely empty and rows that contain any NaN values. 
+    It provides feedback on the number of columns and rows removed, if applicable.
+
+    Parameters:
+    -----------
+    df : pandas.DataFrame
+        The dataset to be cleaned.
+
+    empty_columns : bool, optional (default=True)
+        Whether to remove columns that are completely empty (i.e., containing only NaN values).
+
+    nan_rows : bool, optional (default=True)
+        Whether to remove rows that contain any NaN values.
+
+    Returns:
+    --------
+    df : pandas.DataFrame
+        The cleaned dataset with empty columns and/or rows containing NaN values removed.
+
+    Notes:
+    ------
+    - The function prints the number of empty columns and rows with NaN values that were removed.
+    - The cleaning steps are optional and can be controlled by the `empty_columns` and `nan_rows` parameters.
     """
     initial_columns_qty = len(df.columns)
     initial_rows_qty = len(df)
