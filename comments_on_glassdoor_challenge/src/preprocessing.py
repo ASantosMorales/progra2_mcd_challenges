@@ -1,15 +1,18 @@
 import pandas as pd
 from nltk.corpus import stopwords
-#from nltk import stopwords
+import spacy
 import os
 import re
 import string
+import nltk
+from nltk.stem import WordNetLemmatizer
+from nltk.tokenize import word_tokenize
 
 class dataset():
 	def __init__(self):
 		pass
 
-	def import_data(self, rows = None, seed = None):
+	def load(self, rows = None, seed = None):
 		current_path = os.getcwd()
 		data_path = os.path.join(current_path, '..', 'data')
 		data_absolute_path = os.path.abspath(data_path)
@@ -25,6 +28,10 @@ class dataset():
 		print('Dataset is loaded.')
 		return df
 
+class text_preprocessing():
+	def __init__(self):
+		pass
+
 	def lower_case_processing(self, series:pd.Series) -> pd.Series:
 		return series.apply(lambda x: x.lower() if isinstance(x, str) else x)
 
@@ -38,11 +45,7 @@ class dataset():
 	def extra_spaces_remotion(self, series:pd.Series) -> pd.Series:
 		return series.apply(lambda x: re.sub(r'\s+', ' ', x).strip() if isinstance(x, str) else x)
 
-	def stopwords_remotion(self, series:pd.Series) -> pd.Series:
-		stop_words = set(stopwords.words('english'))
-		return series.apply(lambda x: ' '.join([word for word in x.split() if word not in stop_words]))
-
-	def clean_column(self, series:pd.Series, lower_case:bool = False, remove_numbers:bool = False, remove_punctuation:bool = False, remove_extra_spaces:bool = False, remove_stopwords:bool = False) -> pd.Series:
+	def clean_column(self, series:pd.Series, lower_case:bool = False, remove_numbers:bool = False, remove_punctuation:bool = False, remove_extra_spaces:bool = False) -> pd.Series:
 		if lower_case:
 			series = self.lower_case_processing(series)
 			print('Capital letters removed.')
@@ -55,15 +58,41 @@ class dataset():
 		if remove_extra_spaces:
 			series = self.extra_spaces_remotion(series)
 			print('Extra spaces removed.')
-		if remove_stopwords:
-			print(series)
-			series = self.stopwords_remotion(series)
-			print('Stop words removed.')
-			print(series)
 		return series
 
-	def text_cleaning(self, df:pd.DataFrame, columns:list, lower_case:bool = False, remove_numbers:bool = False, remove_punctuation:bool = False, remove_extra_spaces:bool = False, remove_stopwords:bool = False) -> pd.DataFrame:
+	def cleanning(self, df:pd.DataFrame, columns:list, lower_case:bool = False, remove_numbers:bool = False, remove_punctuation:bool = False, remove_extra_spaces:bool = False) -> pd.DataFrame:
+		columns_names = []
 		for column in columns:
-			series = self.clean_column(df[column], lower_case=lower_case, remove_numbers=remove_numbers, remove_punctuation=remove_punctuation, remove_extra_spaces=remove_extra_spaces, remove_stopwords=remove_stopwords)
-			df[f'{column}_cleaned'] = series
-		return df
+			print(f'Cleaning process for {column}.')
+			series = self.clean_column(df[column], lower_case=lower_case, remove_numbers=remove_numbers, remove_punctuation=remove_punctuation, remove_extra_spaces=remove_extra_spaces)
+			columns_names.append(f'{column}_cleaned')
+			df[columns_names[-1]] = series
+		return df, columns_names
+
+	def stopwords_column(self, series:pd.Series) -> pd.Series:
+		stop_words = set(stopwords.words('english'))
+		return series.apply(lambda x: ' '.join([word for word in x.split() if word not in stop_words]))
+
+	def stopwords_remotion(self, df:pd.DataFrame, columns:list) -> pd.Series:
+		columns_names = []
+		for column in columns:
+			print(f'Stop words remotion process for {column}.')
+			series = self.stopwords_column(df[column])
+			columns_names.append(f'{column}_no_stopwords')
+			df[columns_names[-1]] = series
+			print('Stop words removed.')
+		return df, columns_names
+
+	def lemmatize_column(self, series:pd.Series) -> pd.Series:
+		return series.apply(lambda x: ' '.join([WordNetLemmatizer().lemmatize(word) for word in word_tokenize(x)]) if isinstance(x, str) else x)
+
+	def lemmatizing(self, df:pd.DataFrame, columns:list) -> pd.Series:
+		columns_names = []
+		for column in columns:
+			print(f'Lemmatizing process for {column}.')
+			series = self.lemmatize_column(df[column])
+			columns_names.append(f'{column}_lemmatized')
+			df[columns_names[-1]] = series
+			print('Text lemmatized')
+		return df, columns_names
+
