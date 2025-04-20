@@ -69,9 +69,9 @@ class text_preprocessing():
 			df[columns_names[-1]] = series
 		return df, columns_names
 
-	def stopwords_column(self, series:pd.Series) -> pd.Series:
+	def stopwords_column(self, series: pd.Series) -> pd.Series:
 		stop_words = set(stopwords.words('english'))
-		return series.apply(lambda x: ' '.join([word for word in x.split() if word not in stop_words]))
+		return series.apply(lambda x: ' '.join([word for word in x.split() if word not in stop_words]) if isinstance(x, str) else x)
 
 	def stopwords_remotion(self, df:pd.DataFrame, columns:list) -> pd.Series:
 		columns_names = []
@@ -94,5 +94,19 @@ class text_preprocessing():
 			columns_names.append(f'{column}_lemmatized')
 			df[columns_names[-1]] = series
 			print('Text lemmatized')
+		return df, columns_names
+
+	def text_columns_merging(self, df:pd.DataFrame, columns:list, name_of_column:str = 'text_merged_column') -> pd.DataFrame:
+		df[name_of_column] = df[columns].fillna('').agg(' '.join, axis=1)
+		return df, name_of_column
+
+	def rank_mapping(self, df:pd.DataFrame, columns:list) -> pd.DataFrame:
+		value_map = {'v': 2, 'r': 1, 'o': 0, 'x': -2}
+		columns_names = []
+		for column in columns:
+			print(f'Mapping to numeric values for {column} column.')
+			columns_names.append(f'{column}_level')
+			df[columns_names[-1]] = df[column].map(value_map)
+			print('Column mapped.')
 		return df, columns_names
 
