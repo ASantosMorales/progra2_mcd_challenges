@@ -52,7 +52,7 @@ def extra_spaces_remotion(series:pd.Series) -> pd.Series:
 
 def clean_column(series:pd.Series, lower_case:bool = False, remove_numbers:bool = False, remove_punctuation:bool = False, remove_extra_spaces:bool = False) -> pd.Series:
 	if lower_case:
-		series = ower_case_processing(series)
+		series = lower_case_processing(series)
 		print('Capital letters removed.')
 	if remove_numbers:
 		series = numbers_remotion(series)
@@ -98,7 +98,7 @@ def lemmatizing(df:pd.DataFrame, columns:list) -> pd.Series:
 		series = lemmatize_column(df[column])
 		columns_names.append(f'{column}_lemmatized')
 		df[columns_names[-1]] = series
-		print('Text lemmatized')
+		print('Text lemmatized.')
 	return df, columns_names
 
 def text_columns_merging(df:pd.DataFrame, columns:list, name_of_column:str = 'text_merged_column') -> pd.DataFrame:

@@ -1,7 +1,7 @@
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score
 from preprocessing import *
-from model_training import sentimentClassifier
+from model_training import *
 
 def main():
 	df = load_dataset()
@@ -29,20 +29,18 @@ def main():
 	df_lemmatized_mapped, name_columns_mapped = rank_mapping(df = df_text_merged,
 															columns = columns_to_map)
 
-	"""
-	text_classifier = sentimentClassifier()
-	X = text_classifier.tfidf_vectorizing(df_lemmatized_mapped[name_merged_column])
+	X = tfidf_vectorizing(df_lemmatized_mapped[name_merged_column])
 	y = df_lemmatized_mapped[name_columns_mapped[0]]
-	X_train, X_test, y_train, y_test = text_classifier.split(X=X, y=y)
+	X_train, X_test, y_train, y_test = get_train_test_subsets(X=X, y=y)
 
-	model = text_classifier.model_fitting(model = LogisticRegression(max_iter=1000),
-										X = X_train,
-										y = y_train)
+	model = model_training(model = LogisticRegression(max_iter=1000),
+							X_train = X_train,
+							y_train = y_train)
+
 	y_pred = model.predict(X_test)
 
 	accurracy = accuracy_score(y_test, y_pred)
 	print(f'Accurracy score = {round(accurracy, 4)}')
-	"""
 
 if __name__ == '__main__':
 	main()
