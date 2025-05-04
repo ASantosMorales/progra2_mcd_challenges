@@ -2,6 +2,7 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score
 from preprocessing import *
 from model_training import *
+from evaluation import model_predictions, model_evaluation
 
 def main():
 	df = load_dataset()
@@ -37,10 +38,11 @@ def main():
 							X_train = X_train,
 							y_train = y_train)
 
-	y_pred = model.predict(X_test)
+	y_pred, y_prob = model_predictions(model = model, 
+										X_test = X_test,
+										prob = True)
 
-	accurracy = accuracy_score(y_test, y_pred)
-	print(f'Accurracy score = {round(accurracy, 4)}')
+	model_evaluation(y_pred, y_prob, y_test, auc=False)
 
 if __name__ == '__main__':
 	main()

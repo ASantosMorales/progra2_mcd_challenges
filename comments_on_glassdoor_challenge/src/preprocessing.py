@@ -38,6 +38,11 @@ def load_dataset(rows: int = None, seed: int = None) -> pd.DataFrame:
     print("Dataset is loaded.")
     return df
 
+def remove_empty_rows(df:pd.DataFrame, list_of_columns:list) -> pd.DataFrame:
+	df = df.dropna(subset=list_of_columns)
+	print('Rows with empty values were removed from selected columns.')
+	return df
+
 def lower_case_processing(series:pd.Series) -> pd.Series:
 	return series.apply(lambda x: x.lower() if isinstance(x, str) else x)
 
@@ -103,6 +108,7 @@ def lemmatizing(df:pd.DataFrame, columns:list) -> pd.Series:
 
 def text_columns_merging(df:pd.DataFrame, columns:list, name_of_column:str = 'text_merged_column') -> pd.DataFrame:
 	df[name_of_column] = df[columns].fillna('').agg(' '.join, axis=1)
+	print(f'Columns {columns} merged.')
 	return df, name_of_column
 
 def rank_mapping(df:pd.DataFrame, columns:list) -> pd.DataFrame:
