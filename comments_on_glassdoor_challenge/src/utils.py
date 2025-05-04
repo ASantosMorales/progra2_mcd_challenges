@@ -36,9 +36,11 @@ def get_data(data_name:str):
 	data_path = os.path.join(os.getcwd(), f'{data_name}.pkl')
 	bundle = joblib.load(data_path)
 	model = bundle['model']
+	X_train = bundle['X_train']
+	y_train = bundle['y_train']
 	X_test = bundle['X_test']
 	y_test = bundle['y_test']
-	return model, X_test, y_test
+	return model, X_train, y_train, X_test, y_test
 
 def store_model(model):
 	model_path = os.path.join(os.getcwd(), 'model.pkl')

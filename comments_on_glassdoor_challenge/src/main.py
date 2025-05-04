@@ -4,6 +4,7 @@ from preprocessing import *
 from model_training import *
 from evaluation import model_predictions, model_evaluation, words_frequency_plot
 from utils import store_data, get_data, store_df
+from mlops_pipeline import mlflow_activation, mlflow_logging
 
 def main():
 	"""
@@ -46,10 +47,10 @@ def main():
 							X_train = X_train,
 							y_train = y_train)
 
-	store_data({'model':model, 'X_test':X_test, 'y_test':y_test}, 'data_processed')
+	store_data({'model':model, 'X_train':X_train, 'y_train':y_train, 'X_test':X_test, 'y_test':y_test}, 'data_processed')
 	store_df(df_text_merged, 'df_text_merged')
 	"""
-	model, X_test, y_test = get_data('data_processed')
+	model, X_train, y_train, X_test, y_test = get_data('data_processed')
 	df_text_merged = pd.read_csv(os.path.join(os.getcwd(), 'df_text_merged.csv'))
 	print('Data retreived.')
 
@@ -59,6 +60,13 @@ def main():
 
 	metrics_, artifacts_ = model_evaluation(y_pred, y_prob, y_test)
 	artifacts_['words_frequency_graph'] = words_frequency_plot(df_text_merged['text_merged_column'])
+
+	experiment_id = mlflow_activation(model)
+	mlflow_logging(exp_id=experiment_id,
+				model=model,
+				metrics_=metrics_,
+				artifacts_=artifacts_,
+				X_train=X_train)
 	#"""
 if __name__ == '__main__':
 	main()
