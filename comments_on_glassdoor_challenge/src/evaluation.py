@@ -1,6 +1,8 @@
 from sklearn import metrics
 import os
 import matplotlib.pyplot as plt
+from sklearn.feature_extraction.text import CountVectorizer
+import pandas as pd
 
 def find_plots_path():
     """
@@ -41,7 +43,7 @@ def model_predictions(model, X_test, prob=False):
     y_pred = model.predict(X_test)
     print('Model predictions done.')
     if prob:
-        y_prob = model.predict_proba(X_test)[:,1]
+        y_prob = model.predict_proba(X_test)
         print('Model probabilistic predictions done.')
         return y_pred, y_prob
     else:
@@ -146,7 +148,8 @@ def model_evaluation(y_pred, y_prob, y_test, acc=True, f1=True, conf_mat=True, a
         artifacts_['confusion_matrix'] = cm_disp
         print('Confusion matrix plotted.')
     if auc:
-        metrics_['auc_score'] = metrics.roc_auc_score(y_test, y_prob, multi_class='ovr')
+        y_prob = y_prob[:, 1]
+        metrics_['auc_score'] = metrics.roc_auc_score(y_test, y_prob)
         print(f'Model AUC score: {round(metrics_['auc_score'], 4)}')
         if roc:
             roc_fig = roc_curve_generation(y_test, y_prob, metrics_['auc_score'])
@@ -154,3 +157,21 @@ def model_evaluation(y_pred, y_prob, y_test, acc=True, f1=True, conf_mat=True, a
             roc_fig.savefig(os.path.join(find_plots_path(),'roc.png'))
             print('ROC plotted.')
     return metrics_, artifacts_
+
+def words_frequency_plot(series:pd.Series):
+    corpus = series.astype(str).tolist()
+    vectorizer = CountVectorizer()
+    X = vectorizer.fit_transform(corpus)
+    word_counts = X.sum(axis=0)  
+    word_counts = word_counts.A1  # o .flatten()
+    words = vectorizer.get_feature_names_out()
+    word_freq_df = pd.DataFrame({'word': words, 'count': word_counts})
+    top_words = word_freq_df.sort_values(by='count', ascending=False).head(10)
+    fig, ax = plt.subplots(figsize=(10, 6))
+    ax.barh(top_words['word'][::-1], top_words['count'][::-1], color='skyblue')
+    ax.set_title('Top 10 words in corpus')
+    ax.set_xlabel('Frequency')
+    plt.tight_layout()
+    fig.savefig(os.path.join(find_plots_path(), 'word_frequency_graph.png'))
+    print('Words frequency graph plotted.')
+    return fig

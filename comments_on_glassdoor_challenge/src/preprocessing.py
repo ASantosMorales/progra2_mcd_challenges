@@ -43,6 +43,11 @@ def remove_empty_rows(df:pd.DataFrame, list_of_columns:list) -> pd.DataFrame:
 	print('Rows with empty values were removed from selected columns.')
 	return df
 
+def remove_category_from_samples(df:pd.DataFrame, column_name:str, category_label:str) -> pd.DataFrame:
+	df = df[df[column_name] != category_label]
+	print(f'Category "{category_label}" from column {column_name} was removed.')
+	return df
+
 def lower_case_processing(series:pd.Series) -> pd.Series:
 	return series.apply(lambda x: x.lower() if isinstance(x, str) else x)
 
