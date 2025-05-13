@@ -7,7 +7,7 @@ from utils import store_data, get_data, store_df
 from mlops_pipeline import mlflow_activation, mlflow_logging
 
 def main():
-	"""
+	#"""
 	df = load_dataset()
 
 	# Select the text columns to remove empty rows
@@ -50,10 +50,12 @@ def main():
 	store_data({'model':model, 'X_train':X_train, 'y_train':y_train, 'X_test':X_test, 'y_test':y_test}, 'data_processed')
 	store_df(df_text_merged, 'df_text_merged')
 	"""
+	# Comment or uncomment this part depending of usage scope.
+	# This helps if the user already have processed data able to import.
 	model, X_train, y_train, X_test, y_test = get_data('data_processed')
 	df_text_merged = pd.read_csv(os.path.join(os.getcwd(), 'df_text_merged.csv'))
 	print('Data retreived.')
-
+	"""
 	y_pred, y_prob = model_predictions(model = model, 
 										X_test = X_test,
 										prob = True)
