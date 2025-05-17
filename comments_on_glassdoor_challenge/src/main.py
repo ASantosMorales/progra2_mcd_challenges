@@ -2,7 +2,7 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score
 from preprocessing import *
 from model_training import *
-from evaluation import model_predictions, model_evaluation, words_frequency_plot
+from evaluation import model_predictions, model_evaluation, words_frequency_plot, bigrams_frequency_plot, trigrams_frequency_plot
 from utils import store_data, get_data, store_df
 from mlops_pipeline import mlflow_activation, mlflow_logging
 
@@ -14,6 +14,7 @@ def main():
 	columns = ['recommend', 'headline', 'pros', 'cons']
 	df = remove_empty_rows(df, columns)
 
+	# Cathegory "o" in column "recommend" is useless due to its meaning is: No opinion
 	df = remove_category_from_samples(df=df, column_name='recommend', category_label='o')
 
 	# Select the text columns to be processed
@@ -46,22 +47,23 @@ def main():
 	model = model_training(model = LogisticRegression(max_iter=1000),
 							X_train = X_train,
 							y_train = y_train)
-
+	"""
 	store_data({'model':model, 'X_train':X_train, 'y_train':y_train, 'X_test':X_test, 'y_test':y_test}, 'data_processed')
 	store_df(df_text_merged, 'df_text_merged')
-	"""
 	# Comment or uncomment this part depending of usage scope.
 	# This helps if the user already have processed data able to import.
 	model, X_train, y_train, X_test, y_test = get_data('data_processed')
 	df_text_merged = pd.read_csv(os.path.join(os.getcwd(), 'df_text_merged.csv'))
 	print('Data retreived.')
-	"""
+	#"""
 	y_pred, y_prob = model_predictions(model = model, 
 										X_test = X_test,
 										prob = True)
 
 	metrics_, artifacts_ = model_evaluation(y_pred, y_prob, y_test)
 	artifacts_['words_frequency_graph'] = words_frequency_plot(df_text_merged['text_merged_column'])
+	artifacts_['bigrams_frequency_graph'] = bigrams_frequency_plot(df_text_merged['text_merged_column'])
+	artifacts_['trigrams_frequency_graph'] = trigrams_frequency_plot(df_text_merged['text_merged_column'])
 
 	experiment_id = mlflow_activation(model)
 	mlflow_logging(exp_id=experiment_id,
